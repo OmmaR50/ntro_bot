@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - MiningSim</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .bronze { background: linear-gradient(135deg, #cd7f32, #8b4513); }
+        .silver { background: linear-gradient(135deg, #c0c0c0, #808080); }
+        .gold { background: linear-gradient(135deg, #ffd700, #daa520); }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .card-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .vip-level-card {
+            transition: transform 0.2s;
+            border: 1px solid #dee2e6;
+        }
+        .vip-level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .current-vip {
+            border: 2px solid #007bff;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .bg-silver {
+            background: linear-gradient(135deg, #c0c0c0, #808080) !important;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 sidebar d-md-block bg-dark text-white collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-cube fa-2x text-primary mb-2"></i>
+                        <h5>MiningSim</h5>
+                        <small class="text-muted">TRON Mining Platform</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/mining">
+                                <i class="fas fa-server me-2"></i>Mining
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/wallet">
+                                <i class="fas fa-wallet me-2"></i>Wallet
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/finance">
+                                <i class="fas fa-chart-line me-2"></i>Finance
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/profile">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="#" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- User Info -->
+                    <div class="mt-5 p-3 bg-dark border-top">
+                        <div class="text-center mb-3" id="vipBadge">
+                            <span class="badge bronze">Bronze Member</span>
+                        </div>
+                        <!-- BALANCE BİLGİLERİ -->
+                        <small class="text-muted">Available Balance:</small>
+                        <div class="fw-bold text-success mt-1" id="availableBalance">0.000000 TRX</div>
+                        <small class="text-muted">VIP Level:</small>
+                        <div class="fw-bold text-warning" id="userVIPLevel">Bronze</div>
+                        <small class="text-muted">Total Earned:</small>
+                        <div class="fw-bold text-info" id="totalEarned">0.000000 TRX</div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 bg-light min-vh-100">
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-user me-2 text-primary"></i>My Profile
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                            <i class="fas fa-user-circle me-2"></i>Profile
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="referrals-tab" data-bs-toggle="tab" data-bs-target="#referrals" type="button" role="tab">
+                            <i class="fas fa-users me-2"></i>Referrals
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+                            <i class="fas fa-shield-alt me-2"></i>Security
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="vip-tab" data-bs-toggle="tab" data-bs-target="#vip" type="button" role="tab">
+                            <i class="fas fa-crown me-2"></i>VIP Levels
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="profileTabsContent">
+                    <!-- Profile Tab -->
+                    <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <!-- Telegram Doğrulama -->
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fab fa-telegram me-2 text-primary"></i>Telegram Verification
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Telegram Doğrulama Durumu -->
+                                        <div id="telegramVerificationStatus" style="display: none;"></div>
+                                        
+                                        <!-- Telegram Doğrulama Formu -->
+                                        <div id="telegramVerificationSection">
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                Verify your Telegram account to receive important notifications and secure your account.
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="profileTelegram" class="form-label">Telegram Username</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">@</span>
+                                                        <input type="text" class="form-control" id="profileTelegram" 
+                                                               placeholder="username" value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <button type="button" class="btn btn-primary mb-3" id="requestTelegramVerification">
+                                                <i class="fab fa-telegram me-2"></i>Send Verification Code
+                                            </button>
+                                            
+                                            <!-- Doğrulama Kodu Bölümü -->
+                                            <div id="telegramCodeSection" style="display: none;">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="telegramVerificationCode" class="form-label">Verification Code</label>
+                                                        <input type="text" class="form-control" id="telegramVerificationCode" 
+                                                               placeholder="Enter 6-digit code" maxlength="6">
+                                                        <div class="form-text">Check your Telegram messages for the verification code</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <button type="button" class="btn btn-success" id="verifyTelegramBtn" style="display: none;">
+                                                    <i class="fas fa-check me-2"></i>Verify Code
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-user-edit me-2"></i>Edit Profile
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="profileForm">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="profileUsername" class="form-label">Username</label>
+                                                    <input type="text" class="form-control" id="profileUsername" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="profileEmail" class="form-label">Email Address</label>
+                                                    <input type="email" class="form-control" id="profileEmail" required>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>Update Profile
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Balance Cards -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="stats-card">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="card-label">Available Balance</h6>
+                                                    <h3 class="card-value text-success" id="availableBalanceCard">0.000000</h3>
+                                                </div>
+                                                <i class="fas fa-wallet fa-2x text-success"></i>
+                                            </div>
+                                            <small class="text-muted">For purchases and withdrawals</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="stats-card">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="card-label">Total Balance</h6>
+                                                    <h3 class="card-value text-primary" id="totalBalanceCard">0.000000</h3>
+                                                </div>
+                                                <i class="fas fa-chart-line fa-2x text-primary"></i>
+                                            </div>
+                                            <small class="text-muted">Including locked funds</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-chart-bar me-2"></i>Account Statistics
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <small class="text-muted">Member Since</small>
+                                            <div class="fw-bold" id="memberSince">Loading...</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">Total Earned</small>
+                                            <div class="fw-bold text-success" id="totalEarnedStat">0.000000 TRX</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">Active Miners</small>
+                                            <div class="fw-bold text-info" id="activeMiners">0</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">Total Referrals</small>
+                                            <div class="fw-bold text-warning" id="totalReferrals">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-share-alt me-2"></i>Referral Program
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Your Referral Code</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="refCode" readonly>
+                                                <button class="btn btn-outline-primary" type="button" id="copyRefLink">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Referral Link</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="refLink" readonly>
+                                                <button class="btn btn-outline-success" type="button" onclick="copyRefLink()">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Earn <strong>5%</strong> of your referrals' mining earnings!
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Referrals Tab -->
+                    <div class="tab-pane fade" id="referrals" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-users me-2"></i>My Referrals
+                                </h6>
+                                <button class="btn btn-sm btn-outline-primary" id="refreshReferrals">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="stats-card">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="card-label">Total Referrals</h6>
+                                                    <h3 class="card-value text-primary" id="activeReferrals">0</h3>
+                                                </div>
+                                                <i class="fas fa-user-plus fa-2x text-primary"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="stats-card">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="card-label">Referral Earnings</h6>
+                                                    <h3 class="card-value text-success" id="totalReferralEarnings">0.000000</h3>
+                                                </div>
+                                                <i class="fas fa-coins fa-2x text-success"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="referralsList">
+                                    <div class="text-center text-muted py-5">
+                                        <div class="loading-spinner mb-2"></div>
+                                        <p>Loading referral data...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Tab -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-key me-2"></i>Change Payment Password
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="changePayPasswordForm">
+                                            <div class="mb-3">
+                                                <label for="currentPayPassword" class="form-label">Current Payment Password</label>
+                                                <input type="password" class="form-control" id="currentPayPassword" 
+                                                       placeholder="Enter current password" required maxlength="6">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="newPayPassword" class="form-label">New Payment Password</label>
+                                                <input type="password" class="form-control" id="newPayPassword" 
+                                                       placeholder="4-6 digits" required maxlength="6" pattern="\d*">
+                                                <div class="form-text">Must be 4-6 digits (numbers only)</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="confirmPayPassword" class="form-label">Confirm New Password</label>
+                                                <input type="password" class="form-control" id="confirmPayPassword" 
+                                                       placeholder="Confirm new password" required maxlength="6">
+                                            </div>
+                                            <button type="submit" class="btn btn-warning">
+                                                <i class="fas fa-save me-2"></i>Change Payment Password
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-shield-alt me-2"></i>Security Tips
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Important Security Tips</strong>
+                                        </div>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <i class="fas fa-check text-success me-2"></i>
+                                                Use a strong, unique payment password
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-check text-success me-2"></i>
+                                                Never share your passwords with anyone
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-check text-success me-2"></i>
+                                                Enable two-factor authentication if available
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-check text-success me-2"></i>
+                                                Regularly monitor your account activity
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-check text-success me-2"></i>
+                                                Use secure networks for transactions
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-history me-2"></i>Recent Security Events
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center text-muted py-3">
+                                            <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                                            <p>No recent security events</p>
+                                            <small>Your account security is up to date</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIP Tab -->
+                    <div class="tab-pane fade" id="vip" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-crown me-2"></i>VIP Levels & Benefits
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Upgrade your VIP level to enjoy lower fees, higher rewards, and premium features!
+                                    VIP upgrades are instant and applied immediately.
+                                </div>
+
+                                <!-- Current VIP Status -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="stats-card">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="card-label">Current VIP Level</h6>
+                                                    <h3 class="card-value text-warning" id="currentVipLevel">Bronze</h3>
+                                                </div>
+                                                <i class="fas fa-crown fa-2x text-warning"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="stats-card">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="card-label">Available Balance</h6>
+                                                    <h3 class="card-value text-success" id="vipAvailableBalance">0.000000 TRX</h3>
+                                                </div>
+                                                <i class="fas fa-wallet fa-2x text-success"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" id="vipLevels">
+                                    <!-- VIP levels will be loaded dynamically -->
+                                    <div class="col-12 text-center text-muted py-4">
+                                        <div class="loading-spinner mb-2"></div>
+                                        <p>Loading VIP levels...</p>
+                                    </div>
+                                </div>
+
+                                <!-- VIP Benefits Comparison -->
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-chart-bar me-2"></i>VIP Benefits Comparison
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Feature</th>
+                                                        <th class="text-center">Bronze</th>
+                                                        <th class="text-center">Silver</th>
+                                                        <th class="text-center">Gold</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Withdrawal Fee</td>
+                                                        <td class="text-center">5%</td>
+                                                        <td class="text-center">3%</td>
+                                                        <td class="text-center">1%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Min Withdrawal</td>
+                                                        <td class="text-center">10 TRX</td>
+                                                        <td class="text-center">5 TRX</td>
+                                                        <td class="text-center">1 TRX</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Referral Bonus</td>
+                                                        <td class="text-center">5%</td>
+                                                        <td class="text-center">8%</td>
+                                                        <td class="text-center">12%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Support</td>
+                                                        <td class="text-center">Standard</td>
+                                                        <td class="text-center">Priority</td>
+                                                        <td class="text-center">VIP</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/profile.js"></script>
+    <script>
+        function copyRefLink() {
+            const refLink = document.getElementById('refLink');
+            refLink.select();
+            navigator.clipboard.writeText(refLink.value).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Copied!',
+                    text: 'Referral link copied to clipboard',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
+        }
+    </script>
+</body>
+</html>

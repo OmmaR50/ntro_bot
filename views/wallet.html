@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet - MiningSim</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 sidebar d-md-block bg-dark text-white collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-cube fa-2x text-primary mb-2"></i>
+                        <h5>MiningSim</h5>
+                        <small class="text-muted">TRON Mining Platform</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/mining">
+                                <i class="fas fa-server me-2"></i>Mining
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/wallet">
+                                <i class="fas fa-wallet me-2"></i>Wallet
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/finance">
+                                <i class="fas fa-chart-line me-2"></i>Investments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/profile">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="#" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- User Info -->
+                    <div class="mt-5 p-3 bg-dark border-top">
+                        <small class="text-muted">Network Status:</small>
+                        <div id="tronStatus">
+                            <span class="badge bg-secondary">Checking...</span>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 bg-light min-vh-100">
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-wallet me-2 text-primary"></i>TRON Wallet & Finance
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="location.reload()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Balance Overview -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-label">Total Balance</h6>
+                                    <h3 class="card-value text-primary" id="totalBalance">0.000000</h3>
+                                </div>
+                                <i class="fas fa-wallet fa-2x text-primary"></i>
+                            </div>
+                            <div class="progress balance-progress mt-2">
+                                <div class="progress-bar bg-primary" id="balanceProgress" style="width: 100%"></div>
+                            </div>
+                            <small class="text-muted">All your TRX assets</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-label">Available Balance</h6>
+                                    <h3 class="card-value text-success" id="availableBalance">0.000000</h3>
+                                </div>
+                                <i class="fas fa-coins fa-2x text-success"></i>
+                            </div>
+                            <small class="text-muted">Ready for withdrawal</small>
+                            <button class="btn btn-sm btn-outline-success w-100 mt-2" id="refreshBalance">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-label">Locked Balance</h6>
+                                    <h3 class="card-value text-warning" id="lockedBalance">0.000000</h3>
+                                </div>
+                                <i class="fas fa-lock fa-2x text-warning"></i>
+                            </div>
+                            <small class="text-muted">In active mining</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Wallet Information -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Wallet Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="walletInfo">
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Your TRON Wallet Address</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control wallet-address" id="walletAddress" readonly>
+                                            <button class="btn btn-outline-secondary" type="button" id="copyWalletAddress">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Use this address for withdrawals</small>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Deposit TRON Address</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control wallet-address" id="depositAddress" readonly>
+                                            <button class="btn btn-outline-primary" type="button" id="copyDepositAddress">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Send TRX to this address to deposit</small>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Private Key</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control wallet-address" id="privateKey" readonly>
+                                            <button class="btn btn-outline-warning" type="button" id="togglePrivateKey">
+                                                <i class="fas fa-eye me-2"></i>Show
+                                            </button>
+                                            <button class="btn btn-outline-danger" type="button" id="copyPrivateKey">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted text-danger">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Never share your private key!
+                                        </small>
+                                    </div>
+
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-shield-alt me-2"></i>
+                                        <strong>Security Notice:</strong> Keep your private key secure. 
+                                        MiningSim never stores your unencrypted private key.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Withdrawal Section -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-money-bill-wave me-2"></i>Withdraw TRX
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="withdrawForm">
+                                    <div class="mb-3">
+                                        <label for="withdrawAmount" class="form-label">Amount to Withdraw (TRX)</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="withdrawAmount" 
+                                                   placeholder="Enter amount" step="0.000001" min="0" required>
+                                            <span class="input-group-text">TRX</span>
+                                        </div>
+                                        <div class="form-text">
+                                            Available: <span id="availableBalanceWithdraw" class="text-success">0.000000 TRX</span> | 
+                                            Min: <span id="minWithdrawal" class="text-warning">10 TRX</span>
+                                        </div>
+                                        <div class="text-danger small mt-1" id="amountError"></div>
+                                    </div>
+
+                                    <!-- Quick Amount Buttons -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Quick Select:</label>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-quick-amount" data-amount="10">10 TRX</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-quick-amount" data-amount="50">50 TRX</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-quick-amount" data-amount="100">100 TRX</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-quick-amount" data-amount="500">500 TRX</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnMaxAmount">Max</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="withdrawWalletAddress" class="form-label">TRON Wallet Address</label>
+                                        <input type="text" class="form-control" id="withdrawWalletAddress" 
+                                               placeholder="T..." pattern="^T[1-9A-HJ-NP-Za-km-z]{33}$" required>
+                                        <div class="form-text">Your personal TRON wallet address (starts with T)</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="withdrawPayPassword" class="form-label">Payment Password</label>
+                                        <input type="password" class="form-control" id="withdrawPayPassword" 
+                                               placeholder="Enter your payment password" required maxlength="6">
+                                    </div>
+
+                                    <!-- Withdrawal Summary -->
+                                    <div class="card bg-light mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Withdrawal Summary</h6>
+                                            <div class="row small">
+                                                <div class="col-6">Amount:</div>
+                                                <div class="col-6" id="withdrawAmountDisplay">0.000000 TRX</div>
+                                                <div class="col-6">Fee (<span id="feePercentage">5%</span>):</div>
+                                                <div class="col-6 text-danger" id="withdrawalFee">0.000000 TRX</div>
+                                                <div class="col-6"><strong>You Receive:</strong></div>
+                                                <div class="col-6 text-success fw-bold" id="netAmount">0.000000 TRX</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success w-100 py-2">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit Withdrawal Request
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Actions -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center h-100">
+                            <div class="card-body">
+                                <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
+                                <h5>Generate New Address</h5>
+                                <p class="text-muted">Create a new TRON deposit address</p>
+                                <button class="btn btn-primary w-100" id="generateNewAddress">
+                                    <i class="fas fa-plus me-2"></i>Generate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center h-100">
+                            <div class="card-body">
+                                <i class="fas fa-edit fa-3x text-warning mb-3"></i>
+                                <h5>Update Wallet</h5>
+                                <p class="text-muted">Change your withdrawal address</p>
+                                <button class="btn btn-warning w-100" id="updateWalletAddress">
+                                    <i class="fas fa-edit me-2"></i>Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center h-100">
+                            <div class="card-body">
+                                <i class="fas fa-qrcode fa-3x text-info mb-3"></i>
+                                <h5>QR Code</h5>
+                                <p class="text-muted">Generate deposit QR code</p>
+                                <button class="btn btn-info w-100" id="generateQRCode">
+                                    <i class="fas fa-qrcode me-2"></i>Generate QR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code Section -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-qrcode me-2"></i>Deposit QR Code
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div id="qrcode">
+                                    <div class="text-muted py-4">
+                                        <i class="fas fa-qrcode fa-3x mb-2"></i>
+                                        <p>Generate deposit address to show QR code</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-history me-2"></i>Transaction History
+                        </h6>
+                        <div class="d-flex align-items-center">
+                            <select class="form-select form-select-sm me-2" id="transactionsPerPage" style="width: auto;">
+                                <option value="10">10 per page</option>
+                                <option value="20" selected>20 per page</option>
+                                <option value="50">50 per page</option>
+                                <option value="100">100 per page</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary" id="refreshTransactions">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Fee</th>
+                                        <th>From/To</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsList">
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            <div class="loading-spinner mb-2"></div>
+                                            <p>Loading transactions...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <small class="text-muted" id="showingText">Showing 0-0 of 0 transactions</small>
+                            </div>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="prevPage" disabled>
+                                    <i class="fas fa-chevron-left me-1"></i>Previous
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="nextPage" disabled>
+                                    Next<i class="fas fa-chevron-right ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRON Network Info -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-network-wired me-2"></i>TRON Network Information
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3 col-6 mb-3">
+                                <i class="fas fa-link fa-2x text-primary mb-2"></i>
+                                <h6>Network</h6>
+                                <p class="mb-0">TRON MainNet</p>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <i class="fas fa-coins fa-2x text-warning mb-2"></i>
+                                <h6>Currency</h6>
+                                <p class="mb-0">TRX (TRON)</p>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <i class="fas fa-bolt fa-2x text-success mb-2"></i>
+                                <h6>Transactions</h6>
+                                <p class="mb-0">Instant</p>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <i class="fas fa-shield-alt fa-2x text-info mb-2"></i>
+                                <h6>Security</h6>
+                                <p class="mb-0">High</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Update Wallet Modal -->
+    <div class="modal fade" id="updateWalletModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Update Wallet Address
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="updateWalletModalContent">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/wallet.js"></script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MiningSim</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 sidebar d-md-block bg-dark text-white collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-cube fa-2x text-primary mb-2"></i>
+                        <h5>MiningSim</h5>
+                        <small class="text-muted">TRON Mining Platform</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/mining">
+                                <i class="fas fa-server me-2"></i>Mining
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/wallet">
+                                <i class="fas fa-wallet me-2"></i>Wallet
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/finance">
+                                <i class="fas fa-chart-line me-2"></i>Finance
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/profile">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="#" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- User Info -->
+                    <div class="mt-5 p-3 bg-dark border-top">
+                        <small class="text-muted">Logged in as:</small>
+                        <div class="d-flex align-items-center mt-2">
+                            <i class="fas fa-user-circle me-2 text-primary"></i>
+                            <span id="usernameNav">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 bg-light min-vh-100">
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balance Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-label">Total Balance</h6>
+                                    <h3 class="card-value text-primary" id="totalBalance">0.000000</h3>
+                                </div>
+                                <i class="fas fa-wallet fa-2x text-primary"></i>
+                            </div>
+                            <small class="text-muted">All your TRX assets</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-label">Available Balance</h6>
+                                    <h3 class="card-value text-success" id="availableBalance">0.000000</h3>
+                                </div>
+                                <i class="fas fa-coins fa-2x text-success"></i>
+                            </div>
+                            <small class="text-muted">Ready to use</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-label">Locked Balance</h6>
+                                    <h3 class="card-value text-warning" id="lockedBalance">0.000000</h3>
+                                </div>
+                                <i class="fas fa-lock fa-2x text-warning"></i>
+                            </div>
+                            <small class="text-muted">In active mining</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mining Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stats-card text-center">
+                            <i class="fas fa-server fa-2x text-info mb-2"></i>
+                            <h5 class="card-value" id="activeMiners">0</h5>
+                            <small class="card-label">Active Miners</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stats-card text-center">
+                            <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+                            <h5 class="card-value" id="totalHashrate">0 H/s</h5>
+                            <small class="card-label">Total Hashrate</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stats-card text-center">
+                            <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                            <h5 class="card-value" id="dailyIncome">0.000000</h5>
+                            <small class="card-label">Daily Income (TRX)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stats-card text-center">
+                            <i class="fas fa-gem fa-2x text-primary mb-2"></i>
+                            <h5 class="card-value" id="totalEarned">0.000000</h5>
+                            <small class="card-label">Total Earned (TRX)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Recent Mining -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-server me-2"></i>Recent Mining Activity
+                                </h6>
+                                <a href="/mining" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group list-group-flush" id="recentMining">
+                                    <div class="text-center text-muted py-4">
+                                        <div class="loading-spinner mb-2"></div>
+                                        <p>Loading mining data...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-exchange-alt me-2"></i>Recent Transactions
+                                </h6>
+                                <a href="/finance" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group list-group-flush" id="recentTransactions">
+                                    <div class="text-center text-muted py-4">
+                                        <div class="loading-spinner mb-2"></div>
+                                        <p>Loading transactions...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Additional Info -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>Earnings Overview
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="earningsChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Account Info
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <small class="text-muted">VIP Status</small>
+                                    <div>
+                                        <span class="badge bronze" id="vipLevel">Bronze</span>
+                                        <span class="badge bg-secondary ms-1" id="vipStatus">Basic</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">Member Since</small>
+                                    <div id="userSince">Loading...</div>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">Email</small>
+                                    <div id="userEmail">Loading...</div>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">Referral Code</small>
+                                    <div class="d-flex justify-content-between">
+                                        <code id="refCode">Loading...</code>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="copyRefCode()">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-rocket me-2"></i>Quick Actions
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <a href="/mining" class="btn btn-primary w-100 py-3">
+                                            <i class="fas fa-server fa-2x mb-2"></i><br>
+                                            Start Mining
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <a href="/wallet" class="btn btn-success w-100 py-3">
+                                            <i class="fas fa-wallet fa-2x mb-2"></i><br>
+                                            Deposit
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <a href="/finance" class="btn btn-info w-100 py-3">
+                                            <i class="fas fa-chart-line fa-2x mb-2"></i><br>
+                                            Withdraw
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-3">
+                                        <a href="/profile" class="btn btn-warning w-100 py-3">
+                                            <i class="fas fa-user fa-2x mb-2"></i><br>
+                                            Profile
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/dashboard.js"></script>
+    <script>
+        function copyRefCode() {
+            const refCode = document.getElementById('refCode').textContent;
+            navigator.clipboard.writeText(refCode).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Copied!',
+                    text: 'Referral code copied to clipboard',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
+        }
+    </script>
+</body>
+</html>
